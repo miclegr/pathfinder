@@ -9,6 +9,8 @@ pip install git+https://github.com/miclegr/pathfinder
 ```
 
 ### Notebooks:
+- [Pathfinder optimization path](notebooks/pathfinder.ipynb)
+- [Pathfinder variational inference with tensorflow probability](notebooks/8_schools_tfp.ipynb)
 
 ### Paper:
 
