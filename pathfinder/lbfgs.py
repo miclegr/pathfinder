@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""The Limited-Memory Broyden-Fletcher-Goldfarb-Shanno minimization algorithm."""
+"""The Limited-Memory Broyden-Fletcher-Goldfarb-Shanno minimization algorithm.
+"""
+## TAKEN FROM https://github.com/google/jax/blob/main/jax/_src/scipy/optimize/_lbfgs.py
+## and added functionality to return optimization path
 
 from collections import namedtuple
 import jax

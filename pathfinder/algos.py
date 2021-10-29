@@ -1,12 +1,18 @@
 import jax.random
 import jax.numpy as jnp
-import numpy as np
+from functools import partial
 
 
 def lbfgs_inverse_hessian_factors(S, Z, alpha):
+    """
+    Calculates factors for inverse hessian factored representation.
+    It implements algorithm of figure 7 in:
+
+    Pathfinder: Parallel quasi-newton variational inference, Lu Zhang et al., arXiv:2108.03782
+    """
     J = S.shape[1]
     StZ = S.T @ Z
-    R = np.triu(StZ)
+    R = jnp.triu(StZ)
 
     eta = jnp.diag(StZ)
 
@@ -21,10 +27,19 @@ def lbfgs_inverse_hessian_factors(S, Z, alpha):
 
 
 def lbfgs_inverse_hessian_formula_1(alpha, beta, gamma):
+    """
+    Calculates inverse hessian from factors as in figure 7:
+
+    """
     return jnp.diag(alpha) + beta @ gamma @ beta.T
 
 
 def lbfgs_inverse_hessian_formula_2(alpha, beta, gamma):
+    """
+    Calculates inverse hessian from factors as in formula II.1 of:
+
+    Pathfinder: Parallel quasi-newton variational inference, Lu Zhang et al., arXiv:2108.03782
+    """
     N = alpha.shape[0]
     dsqrt_alpha = jnp.diag(jnp.sqrt(alpha))
     idsqrt_alpha = jnp.diag(1/jnp.sqrt(alpha))
@@ -34,6 +49,12 @@ def lbfgs_inverse_hessian_formula_2(alpha, beta, gamma):
 
 
 def lbfgs_sample(rng_key, M, theta, grad_theta, alpha, beta, gamma):
+    """
+    Draws approximate samples of target distribution.
+    It implements algorith of figure 8 in:
+
+    Pathfinder: Parallel quasi-newton variational inference, Lu Zhang et al., arXiv:2108.03782
+    """
 
     Q, R = jnp.linalg.qr(jnp.diag(jnp.sqrt(1/alpha)) @ beta)
     N, J = beta.shape[0], R.shape[0]
@@ -49,4 +70,16 @@ def lbfgs_sample(rng_key, M, theta, grad_theta, alpha, beta, gamma):
     phi = (mu[None, :, None] + jnp.diag(jnp.sqrt(alpha))@(
         (Q @ L @ Q.T) @ u + u - (Q @ Q.T @ u)
         ))[:, :, 0]
-    return phi, logdet
+
+    logq = -.5 * (logdet + (u**2).sum([-1, -2]) + N*jnp.log(2.*jnp.pi))
+    return phi, logq, logdet
+
+
+def ELBO(logp, logq):
+    """
+    Calculates approximate ELBO using monte carlo.
+    It implements algorith of figure 9 in:
+
+    Pathfinder: Parallel quasi-newton variational inference, Lu Zhang et al., arXiv:2108.03782
+    """
+    return (logp - logq).mean()

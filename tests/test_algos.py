@@ -59,15 +59,17 @@ def test_sample():
 
     alpha = history.gamma[-1] * jnp.ones(d)
     beta, gamma = lbfgs_inverse_hessian_factors(S, Z, alpha)
-    phi, logdet = lbfgs_sample(rng_key, M, history.x[-1], history.g[-1],
-                               alpha, beta, gamma)
+    phi, logq, logdet = lbfgs_sample(rng_key, M, history.x[-1], history.g[-1],
+                                     alpha, beta, gamma)
 
     mu = history.x[-1] + jnp.diag(alpha) @ history.g[-1] +\
         beta @ gamma @ beta.T @ history.g[-1]
     inv_hess = lbfgs_inverse_hessian_formula_1(alpha, beta, gamma)
 
     inv_hess_hat = jnp.cov(phi, rowvar=False)
+    logq_1 = jax.scipy.stats.multivariate_normal.logpdf(phi, mu, inv_hess)
 
     assert jnp.linalg.norm(mu-phi.mean(0)) < 10.
     assert jnp.allclose(jnp.linalg.det(inv_hess_hat-inv_hess), 0.)
     assert jnp.allclose(logdet, jnp.log(jnp.linalg.det(inv_hess)), rtol=1e-3)
+    assert jnp.allclose(logq, logq_1, rtol=1e-4, atol=1e-4)
