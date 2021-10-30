@@ -28,8 +28,9 @@ def lbfgs_inverse_hessian_factors(S, Z, alpha):
 
 def lbfgs_inverse_hessian_formula_1(alpha, beta, gamma):
     """
-    Calculates inverse hessian from factors as in figure 7:
+    Calculates inverse hessian from factors as in figure 7 of:
 
+    Pathfinder: Parallel quasi-newton variational inference, Lu Zhang et al., arXiv:2108.03782
     """
     return jnp.diag(alpha) + beta @ gamma @ beta.T
 
