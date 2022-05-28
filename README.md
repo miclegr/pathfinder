@@ -3,6 +3,8 @@ JAX implementation of "Pathfinder: Parallel quasi-Newton variational inference".
 
 Works with any probabilistic programming framework that provides JAX log-densities.
 
+### 🚧 This work has been merged into [blackjax](https://github.com/blackjax-devs/blackjax)
+
 ### Installation
 ```
 pip install git+https://github.com/miclegr/pathfinder
